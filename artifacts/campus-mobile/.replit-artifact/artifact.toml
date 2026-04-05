@@ -1,0 +1,27 @@
+kind = "mobile"
+previewPath = "/campus-mobile/"
+title = "Campus Mobile"
+version = "1.0.0"
+id = "artifacts/campus-mobile"
+router = "expo-domain"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+ensurePreviewReachable = "/status"
+name = "expo"
+paths = [ "/campus-mobile/" ]
+localPort = 18192
+
+[services.development]
+run = "pnpm --filter @workspace/campus-mobile run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/campus-mobile", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/campus-mobile", "run", "serve" ]
+
+[services.env]
+PORT = "18192"
+BASE_PATH = "/campus-mobile/"

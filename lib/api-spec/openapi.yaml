@@ -3,20 +3,33 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Campus Online API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: users
+    description: User operations
+  - name: clubs
+    description: Club operations
+  - name: events
+    description: Event operations
+  - name: announcements
+    description: Announcement operations
+  - name: reactions
+    description: Event reaction operations
+  - name: dashboard
+    description: Dashboard summary operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +37,634 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users (admin only)
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: role
+          schema:
+            type: string
+            enum: [student, club_official, admin]
+        - in: query
+          name: isActive
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserListResponse"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user (admin or own profile)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserBody"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/{id}/toggle-active:
+    post:
+      operationId: toggleUserActive
+      tags: [users]
+      summary: Toggle user active status (admin only)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /clubs:
+    get:
+      operationId: listClubs
+      tags: [clubs]
+      summary: List all clubs
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+        - in: query
+          name: search
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of clubs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClubListResponse"
+    post:
+      operationId: createClub
+      tags: [clubs]
+      summary: Create a club (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClubBody"
+      responses:
+        "201":
+          description: Created club
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Club"
+
+  /clubs/featured:
+    get:
+      operationId: listFeaturedClubs
+      tags: [clubs]
+      summary: Get featured/popular clubs
+      responses:
+        "200":
+          description: Featured clubs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Club"
+
+  /clubs/{id}:
+    get:
+      operationId: getClub
+      tags: [clubs]
+      summary: Get club by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Club details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Club"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateClub
+      tags: [clubs]
+      summary: Update club
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateClubBody"
+      responses:
+        "200":
+          description: Updated club
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Club"
+
+  /events:
+    get:
+      operationId: listEvents
+      tags: [events]
+      summary: List events with filters
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: category
+          schema:
+            type: string
+        - in: query
+          name: clubId
+          schema:
+            type: integer
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+        - in: query
+          name: upcoming
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of events
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventListResponse"
+    post:
+      operationId: createEvent
+      tags: [events]
+      summary: Create an event (club official)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEventBody"
+      responses:
+        "201":
+          description: Created event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+
+  /events/upcoming:
+    get:
+      operationId: listUpcomingEvents
+      tags: [events]
+      summary: Get upcoming approved events (next 7 days)
+      responses:
+        "200":
+          description: Upcoming events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Event"
+
+  /events/categories:
+    get:
+      operationId: listEventCategories
+      tags: [events]
+      summary: List event categories with counts
+      responses:
+        "200":
+          description: Category list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryCount"
+
+  /events/{id}:
+    get:
+      operationId: getEvent
+      tags: [events]
+      summary: Get event by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Event details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateEvent
+      tags: [events]
+      summary: Update event (club official or admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEventBody"
+      responses:
+        "200":
+          description: Updated event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+    delete:
+      operationId: deleteEvent
+      tags: [events]
+      summary: Delete event (club official or admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /events/{id}/approve:
+    post:
+      operationId: approveEvent
+      tags: [events]
+      summary: Approve an event (admin only)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Approved event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+
+  /events/{id}/attendees:
+    get:
+      operationId: listEventAttendees
+      tags: [events]
+      summary: List event attendees (club official or admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of attendees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventReaction"
+
+  /events/{id}/react:
+    post:
+      operationId: reactToEvent
+      tags: [reactions]
+      summary: React to event (join or interested)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReactToEventBody"
+      responses:
+        "200":
+          description: Reaction result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventReaction"
+    delete:
+      operationId: removeReaction
+      tags: [reactions]
+      summary: Remove reaction from event
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Removed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /announcements:
+    get:
+      operationId: listAnnouncements
+      tags: [announcements]
+      summary: List announcements
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+        - in: query
+          name: clubId
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of announcements
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnnouncementListResponse"
+    post:
+      operationId: createAnnouncement
+      tags: [announcements]
+      summary: Create announcement (club official or admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAnnouncementBody"
+      responses:
+        "201":
+          description: Created announcement
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+
+  /announcements/{id}:
+    get:
+      operationId: getAnnouncement
+      tags: [announcements]
+      summary: Get announcement by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Announcement details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+    delete:
+      operationId: deleteAnnouncement
+      tags: [announcements]
+      summary: Delete announcement (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get dashboard summary statistics
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +675,448 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    RegisterBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        studentId:
+          type: string
+        department:
+          type: string
+      required:
+        - name
+        - email
+        - password
+
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+      required:
+        - user
+        - token
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [student, club_official, admin]
+        studentId:
+          type: string
+          nullable: true
+        department:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          nullable: true
+        isActive:
+          type: boolean
+        clubId:
+          type: integer
+          nullable: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - email
+        - role
+        - isActive
+        - createdAt
+
+    UpdateUserBody:
+      type: object
+      properties:
+        name:
+          type: string
+        department:
+          type: string
+        avatarUrl:
+          type: string
+        isActive:
+          type: boolean
+
+    UserListResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required:
+        - users
+        - total
+        - page
+        - limit
+
+    Club:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        category:
+          type: string
+          nullable: true
+        logoUrl:
+          type: string
+          nullable: true
+        memberCount:
+          type: integer
+        eventCount:
+          type: integer
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - memberCount
+        - eventCount
+        - createdAt
+
+    CreateClubBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        logoUrl:
+          type: string
+      required:
+        - name
+
+    UpdateClubBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        logoUrl:
+          type: string
+
+    ClubListResponse:
+      type: object
+      properties:
+        clubs:
+          type: array
+          items:
+            $ref: "#/components/schemas/Club"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required:
+        - clubs
+        - total
+        - page
+        - limit
+
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        category:
+          type: string
+          nullable: true
+        location:
+          type: string
+          nullable: true
+        imageUrl:
+          type: string
+          nullable: true
+        startDate:
+          type: string
+        endDate:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        clubId:
+          type: integer
+        clubName:
+          type: string
+          nullable: true
+        attendeeCount:
+          type: integer
+        interestedCount:
+          type: integer
+        userReaction:
+          type: string
+          nullable: true
+          enum: [going, interested]
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - startDate
+        - status
+        - clubId
+        - attendeeCount
+        - interestedCount
+        - createdAt
+
+    CreateEventBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        location:
+          type: string
+        imageUrl:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+      required:
+        - title
+        - startDate
+
+    UpdateEventBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        location:
+          type: string
+        imageUrl:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+
+    EventListResponse:
+      type: object
+      properties:
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/Event"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required:
+        - events
+        - total
+        - page
+        - limit
+
+    EventReaction:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        eventId:
+          type: integer
+        type:
+          type: string
+          enum: [going, interested]
+        userName:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - userId
+        - eventId
+        - type
+        - createdAt
+
+    ReactToEventBody:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [going, interested]
+      required:
+        - type
+
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        clubId:
+          type: integer
+          nullable: true
+        clubName:
+          type: string
+          nullable: true
+        isGlobal:
+          type: boolean
+        authorId:
+          type: integer
+        authorName:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - content
+        - isGlobal
+        - authorId
+        - createdAt
+
+    CreateAnnouncementBody:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        isGlobal:
+          type: boolean
+      required:
+        - title
+        - content
+
+    AnnouncementListResponse:
+      type: object
+      properties:
+        announcements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Announcement"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required:
+        - announcements
+        - total
+        - page
+        - limit
+
+    CategoryCount:
+      type: object
+      properties:
+        category:
+          type: string
+        count:
+          type: integer
+      required:
+        - category
+        - count
+
+    DashboardSummary:
+      type: object
+      properties:
+        totalEvents:
+          type: integer
+        upcomingEvents:
+          type: integer
+        totalClubs:
+          type: integer
+        totalStudents:
+          type: integer
+        pendingApprovals:
+          type: integer
+        recentAnnouncements:
+          type: integer
+        topCategories:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryCount"
+      required:
+        - totalEvents
+        - upcomingEvents
+        - totalClubs
+        - totalStudents
+        - pendingApprovals
+        - recentAnnouncements
+        - topCategories

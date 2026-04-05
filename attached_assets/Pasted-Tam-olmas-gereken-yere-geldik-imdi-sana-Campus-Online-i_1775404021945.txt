@@ -1,0 +1,108 @@
+Tam olması gereken yere geldik 😄 Şimdi sana Campus Online için ders seviyesinde, düzgün ve sınavda da işine yarayacak gereksinim analizi hazırlıyorum. Bunu direkt raporuna koyabilirsin.
+
+⸻
+
+📊 Campus Online – Gereksinim Analizi
+
+1. 📖 Sistem Tanımı
+
+Campus Online, üniversite kulüplerinin etkinlik ve duyurularını öğrencilerle paylaşmasını sağlayan; öğrencilerin ise bu etkinlikleri görüntüleyip etkileşime geçebildiği web ve mobil tabanlı bir platformdur.
+
+⸻
+
+2. 👥 Paydaşlar (Stakeholders)
+	•	🎓 Öğrenciler
+	•	🏫 Öğrenci Kulüpleri
+	•	🛠️ Sistem Yöneticisi (Admin)
+	•	🎯 Üniversite Yönetimi
+
+⸻
+
+3. 🧩 Kullanıcı Türleri
+	1.	Öğrenci
+	2.	Kulüp Yetkilisi
+	3.	Admin
+
+⸻
+
+4. ✅ Fonksiyonel Gereksinimler
+
+👤 4.1 Öğrenci Gereksinimleri
+	•	Kullanıcı sisteme kayıt olabilmelidir
+	•	Kullanıcı sisteme giriş yapabilmelidir
+	•	Kullanıcı etkinlikleri listeleyebilmelidir
+	•	Kullanıcı etkinlikleri kategoriye göre filtreleyebilmelidir
+	•	Kullanıcı etkinlik detaylarını görüntüleyebilmelidir
+	•	Kullanıcı etkinliklere katılma / ilgileniyorum şeklinde tepki verebilmelidir
+	•	Kullanıcı bildirim alabilmelidir
+	•	Kullanıcı kendi profilini görüntüleyip düzenleyebilmelidir
+
+⸻
+
+🏢 4.2 Kulüp Yetkilisi Gereksinimleri
+	•	Kulüp yetkilisi sisteme giriş yapabilmelidir
+	•	Kulüp yetkilisi etkinlik oluşturabilmelidir
+	•	Kulüp yetkilisi oluşturduğu etkinlikleri güncelleyebilmelidir
+	•	Kulüp yetkilisi etkinlikleri silebilmelidir
+	•	Kulüp yetkilisi etkinliklere katılan kullanıcıları görebilmelidir
+	•	Kulüp yetkilisi duyuru paylaşabilmelidir
+
+⸻
+
+🛠️ 4.3 Admin Gereksinimleri
+	•	Admin tüm kullanıcıları görüntüleyebilmelidir
+	•	Admin kullanıcıları aktif/pasif yapabilmelidir
+	•	Admin etkinlikleri onaylayabilmelidir (moderasyon)
+	•	Admin uygunsuz içerikleri silebilmelidir
+	•	Admin sistem genelinde duyuru paylaşabilmelidir
+
+⸻
+
+5. ⚙️ Fonksiyonel Olmayan Gereksinimler
+
+🚀 Performans
+	•	Sistem aynı anda en az 1000 kullanıcıyı destekleyebilmelidir
+	•	Sayfa yüklenme süresi 2 saniyeyi geçmemelidir
+
+🔒 Güvenlik
+	•	Kullanıcı şifreleri şifrelenmiş şekilde saklanmalıdır
+	•	Yetkisiz erişimler engellenmelidir
+	•	Kullanıcı verileri korunmalıdır
+
+📱 Kullanılabilirlik
+	•	Arayüz kullanıcı dostu olmalıdır
+	•	Mobil ve web uyumlu olmalıdır (responsive design)
+
+🔄 Güvenilirlik
+	•	Sistem %99 uptime sağlamalıdır
+	•	Veri kaybı olmamalıdır
+
+⸻
+
+6. 🔗 Sistem Gereksinimleri
+	•	İnternet bağlantısı gereklidir
+	•	Modern web tarayıcıları desteklenmelidir
+	•	Android ve iOS cihazlarda çalışmalıdır
+
+⸻
+
+7. 📌 Kısıtlar (Constraints)
+	•	Proje belirli bir süre içinde tamamlanmalıdır
+	•	Kullanılan teknolojiler ekip bilgisine uygun olmalıdır
+	•	Üniversite sistemleri ile entegrasyon gerekebilir
+
+⸻
+
+8. 🎯 Varsayımlar
+	•	Kullanıcılar internet erişimine sahiptir
+	•	Kulüpler sistemi aktif olarak kullanacaktır
+	•	Öğrenciler mobil uygulamayı tercih edecektir
+
+⸻
+
+İstersen bir sonraki aşamada sana:
+👉 Use Case diyagramı (çok önemli)
+👉 Activity diagram (akış diyagramı)
+👉 Veritabanı tasarımı (ER diyagramı)
+
+hazırlayayım. Bu proje çok güzel ilerliyor bu arada 🔥

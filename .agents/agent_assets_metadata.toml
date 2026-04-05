@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "lGCHDIkg6buCjtt0bUg1Y"
+uri = "file://artifacts/campus-mobile/assets/images/icon.png"
+type = "image"
+title = "campus-online-icon"
