@@ -71,13 +71,18 @@ export default function ProfileScreen() {
   }
 
   async function handleSignOut() {
-    Alert.alert("Cikis", "Cikmak istediginizden emin misiniz?", [
-      { text: "Iptal", style: "cancel" },
-      { text: "Cikis Yap", style: "destructive", onPress: async () => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        await signOut();
-      }},
-    ]);
+    if (Platform.OS === "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      await signOut();
+    } else {
+      Alert.alert("Cikis", "Cikmak istediginizden emin misiniz?", [
+        { text: "Iptal", style: "cancel" },
+        { text: "Cikis Yap", style: "destructive", onPress: async () => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          await signOut();
+        }},
+      ]);
+    }
   }
 
   if (!user) {
