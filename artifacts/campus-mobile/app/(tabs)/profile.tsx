@@ -30,13 +30,22 @@ export default function ProfileScreen() {
     if (!email || !password) { setError("E-posta ve sifre zorunludur"); return; }
     setError("");
     try {
-      const result = await loginMutation.mutateAsync({ data: { email, password } });
+      const result = await loginMutation.mutateAsync({ data: { email: email.trim().toLowerCase(), password } });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       await signIn(result.user as never, result.token);
       setMode("view");
       setEmail(""); setPassword("");
-    } catch {
-      setError("Gecersiz e-posta veya sifre");
+    } catch (err: unknown) {
+      const apiErr = err as { data?: { error?: string }; message?: string; status?: number };
+      if (apiErr?.status === 401) {
+        setError("E-posta veya sifre hatali");
+      } else if (apiErr?.data?.error) {
+        setError(apiErr.data.error);
+      } else if (apiErr?.message) {
+        setError("Baglanti hatasi: " + apiErr.message);
+      } else {
+        setError("Giris yapilamadi, tekrar deneyin");
+      }
     }
   }
 
@@ -44,13 +53,20 @@ export default function ProfileScreen() {
     if (!email || !password || !name) { setError("Ad, e-posta ve sifre zorunludur"); return; }
     setError("");
     try {
-      const result = await registerMutation.mutateAsync({ data: { name, email, password, studentId: studentId || undefined, department: department || undefined } });
+      const result = await registerMutation.mutateAsync({ data: { name, email: email.trim().toLowerCase(), password, studentId: studentId || undefined, department: department || undefined } });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       await signIn(result.user as never, result.token);
       setMode("view");
       setEmail(""); setPassword(""); setName(""); setStudentId(""); setDepartment("");
-    } catch {
-      setError("Kayit olunurken hata olustu");
+    } catch (err: unknown) {
+      const apiErr = err as { data?: { error?: string }; message?: string; status?: number };
+      if (apiErr?.data?.error) {
+        setError(apiErr.data.error);
+      } else if (apiErr?.message) {
+        setError("Baglanti hatasi: " + apiErr.message);
+      } else {
+        setError("Kayit yapilamadi, tekrar deneyin");
+      }
     }
   }
 
