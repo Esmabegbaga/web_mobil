@@ -40,18 +40,31 @@ export default function Register() {
 
   const onSubmit = async (values: RegisterFormValues) => {
     try {
-      const response = await registerMutation.mutateAsync({ data: values });
+      const normalizedValues = {
+        ...values,
+        email: values.email.trim().toLowerCase(),
+        studentId: values.studentId || undefined,
+        department: values.department || undefined,
+      };
+      const response = await registerMutation.mutateAsync({ data: normalizedValues });
       login(response.token, response.user);
       toast({
-        title: "Account created!",
-        description: "Welcome to Campus Online.",
+        title: "Hesap oluşturuldu!",
+        description: "Campus Online'a hoş geldiniz.",
       });
       setLocation("/");
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiErr = error as { status?: number; data?: { error?: string }; message?: string };
+      let description = "Hesap oluşturulamadı, tekrar deneyin.";
+      if (apiErr?.data?.error) {
+        description = apiErr.data.error;
+      } else if (apiErr?.message && !apiErr.message.startsWith("HTTP")) {
+        description = apiErr.message;
+      }
       toast({
         variant: "destructive",
-        title: "Registration Failed",
-        description: error?.message || "There was an error creating your account. Please try again.",
+        title: "Kayıt Başarısız",
+        description,
       });
     }
   };

@@ -35,18 +35,31 @@ export default function Login() {
 
   const onSubmit = async (values: LoginFormValues) => {
     try {
-      const response = await loginMutation.mutateAsync({ data: values });
+      const normalizedValues = {
+        email: values.email.trim().toLowerCase(),
+        password: values.password,
+      };
+      const response = await loginMutation.mutateAsync({ data: normalizedValues });
       login(response.token, response.user);
       toast({
-        title: "Welcome back!",
-        description: "You have successfully logged in.",
+        title: "Hoş geldiniz!",
+        description: "Başarıyla giriş yaptınız.",
       });
       setLocation("/");
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiErr = error as { status?: number; data?: { error?: string }; message?: string };
+      let description = "E-posta veya şifrenizi kontrol edin.";
+      if (apiErr?.status === 401) {
+        description = "E-posta veya şifre hatalı.";
+      } else if (apiErr?.data?.error) {
+        description = apiErr.data.error;
+      } else if (apiErr?.message && !apiErr.message.startsWith("HTTP")) {
+        description = apiErr.message;
+      }
       toast({
         variant: "destructive",
-        title: "Login Failed",
-        description: error?.message || "Please check your credentials and try again.",
+        title: "Giriş Başarısız",
+        description,
       });
     }
   };
